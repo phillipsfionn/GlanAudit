@@ -1,0 +1,309 @@
+{% extends 'base.html' %}
+
+{% block title %}Manager Defect Triage Console - GlanAudit{% endblock %}
+
+{% block extra_css %}
+<style>
+    .console-header {
+        margin-bottom: 24px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #1e293b;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .defect-card {
+        background-color: #0f1623;
+        border: 1px solid #1e293b;
+        border-radius: 10px;
+        padding: 24px;
+        margin-bottom: 20px;
+        display: grid;
+        grid-template-columns: 180px 1fr 260px;
+        gap: 24px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+    .defect-card.priority-high { border-left: 4px solid #ef4444 !important; }
+    .defect-card.priority-medium { border-left: 4px solid #f59e0b !important; }
+    .defect-card.priority-low { border-left: 4px solid #3b82f6 !important; }
+
+    .defect-photo {
+        width: 100%;
+        height: 140px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 1px solid #26334d;
+    }
+    .no-photo {
+        width: 100%;
+        height: 140px;
+        background-color: #172033;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+        font-size: 12px;
+        border: 1px dashed #26334d;
+    }
+
+    .priority-badge {
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .p-high { background-color: #450a0a; color: #fca5a5; border: 1px solid #991b1b; }
+    .p-medium { background-color: #451a03; color: #fde68a; border: 1px solid #d97706; }
+    .p-low { background-color: #0c4a6e; color: #bae6fd; border: 1px solid #0284c7; }
+
+    /* Action & Triage Control Panel */
+    .action-panel {
+        background-color: #0d131f;
+        padding: 16px;
+        border-radius: 8px;
+        border: 1px solid #1e293b;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .action-panel label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    .action-panel select,
+    .action-panel input[type="text"] {
+        background-color: #172033 !important;
+        border: 1px solid #26334d !important;
+        border-radius: 6px !important;
+        color: #ffffff !important;
+        padding: 10px 12px !important;
+        font-size: 13px !important;
+        outline: none !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        font-family: inherit !important;
+        transition: border-color 0.15s ease-in-out !important;
+    }
+
+    .action-panel select:focus,
+    .action-panel input[type="text"]:focus {
+        border-color: #20BF55 !important;
+    }
+
+    .action-panel select option {
+        background-color: #172033;
+        color: #ffffff;
+    }
+
+    /* Action Buttons */
+    .btn-defer {
+        background-color: #172033 !important;
+        color: #fde68a !important;
+        border: 1px solid #d97706 !important;
+        padding: 10px 14px !important;
+        border-radius: 6px !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        cursor: pointer;
+        width: 100%;
+        transition: background-color 0.15s ease-in-out !important;
+    }
+    .btn-defer:hover {
+        background-color: #2a1f0d !important;
+    }
+
+    .btn-approve {
+        background-color: #20BF55 !important;
+        color: #090d16 !important;
+        border: none !important;
+        padding: 12px 14px !important;
+        border-radius: 6px !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        cursor: pointer;
+        width: 100%;
+        transition: background-color 0.15s ease-in-out !important;
+    }
+    .btn-approve:hover {
+        background-color: #199e45 !important;
+    }
+
+    .defer-box, .approval-box {
+        display: none;
+        margin-top: 8px;
+    }
+
+    @media (max-width: 900px) {
+        .defect-card { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="console-header">
+    <div>
+        <h2 style="margin: 0; color: #ffffff; font-size: 24px;">Fleet Manager Defect Triage</h2>
+        <p style="margin: 4px 0 0 0; color: #94a3b8; font-size: 14px;">Set risk priority, assign jobs to mechanics, defer non-critical items, and perform final approvals.</p>
+    </div>
+    <div style="font-size: 13px; color: #20BF55; font-weight: 700;">
+        ● {{ defects|length }} Open Fleet Defects
+    </div>
+</div>
+
+{% for defect in defects %}
+{% set priority_val = (defect.priority or 'HIGH')|upper %}
+<div class="defect-card priority-{{ priority_val|lower }}">
+    <!-- Photo Evidence -->
+    <div>
+        {% if defect.photo_url %}
+            <a href="{{ url_for('static', filename=defect.photo_url) }}" target="_blank">
+                <img src="{{ url_for('static', filename=defect.photo_url) }}" class="defect-photo" alt="Defect Evidence">
+            </a>
+        {% else %}
+            <div class="no-photo">No Photo Attached</div>
+        {% endif %}
+    </div>
+
+    <!-- Defect Info -->
+    <div>
+        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap;">
+            <span class="priority-badge p-{{ priority_val|lower }}">{{ priority_val }} PRIORITY</span>
+            <span style="font-size: 12px; color: #94a3b8;">Defect #{{ defect.defect_id }} &bull; RSA Item #{{ defect.category_id }}</span>
+
+            {% if defect.status == 'Pending Approval' %}
+                <span style="background-color: #451a03; color: #fde68a; border: 1px solid #d97706; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700;">
+                    PENDING FINAL APPROVAL
+                </span>
+            {% endif %}
+        </div>
+
+        <h3 style="margin: 0 0 8px 0; font-size: 20px; color: #ffffff;">
+            <a href="{{ url_for('manager_vehicle_detail', vehicle_id=defect.vehicle.vehicle_id) }}" style="color: #ffffff; text-decoration: none;">
+                {{ defect.vehicle.registration_number }}
+            </a>
+            <span style="font-size: 14px; font-weight: 400; color: #94a3b8;">({{ defect.vehicle.make_model or 'HGV' }})</span>
+        </h3>
+
+        <div style="font-size: 14px; color: #e2e8f0; background-color: #172033; border: 1px solid #26334d; padding: 12px; border-radius: 6px; margin-bottom: 10px;">
+            <strong style="color: #94a3b8; font-size: 11px; text-transform: uppercase; display: block; margin-bottom: 4px;">Driver Reported Defect:</strong>
+            {{ defect.description }}
+        </div>
+
+        {% if defect.deferral_reason %}
+        <div style="font-size: 12px; color: #fde68a; background-color: #451a03; border: 1px solid #d97706; padding: 8px 12px; border-radius: 6px; margin-bottom: 10px;">
+            <strong>Deferred Reason:</strong> {{ defect.deferral_reason }}
+        </div>
+        {% endif %}
+
+        <!-- Mechanic Submitted Repair & Cost Details -->
+        {% if defect.repair_job and (defect.repair_job.repair_details or defect.repair_job.parts_cost or defect.repair_job.mechanic_signature) %}
+        <div style="font-size: 13px; color: #86efac; background-color: #0d3320; border: 1px solid #166534; padding: 12px; border-radius: 6px; margin-bottom: 10px;">
+            <div><strong>Mechanic Repair Notes:</strong> {{ defect.repair_job.repair_details or 'No repair details provided' }}</div>
+            <div style="margin-top: 4px;"><strong>Parts Cost:</strong> €{{ '%.2f'|format(defect.repair_job.parts_cost or 0) }}</div>
+            <div style="margin-top: 4px; font-size: 11px; color: #94a3b8;">
+                <strong>Parts Replaced:</strong> {{ 'Yes' if defect.repair_job.parts_replaced else 'No' }} &bull;
+                <strong>Mechanic Sign-Off:</strong> {{ defect.repair_job.mechanic_signature or 'N/A' }}
+            </div>
+        </div>
+        {% endif %}
+
+        <div style="font-size: 12px; color: #94a3b8; display: flex; gap: 16px; flex-wrap: wrap;">
+            <div>Vehicle Status: <strong style="color: {% if defect.vehicle.current_status == 'In Workshop' %}#fbbf24{% else %}#ef4444{% endif %};">{{ defect.vehicle.current_status }}</strong></div>
+            <div>Assigned Mechanic: <strong style="color: {% if defect.repair_job and defect.repair_job.assigned_mechanic %}#86efac{% else %}#64748b{% endif %};">{{ defect.repair_job.assigned_mechanic.full_name if (defect.repair_job and defect.repair_job.assigned_mechanic) else 'Unassigned' }}</strong></div>
+        </div>
+    </div>
+
+    <!-- Manager Controls Panel -->
+    <div class="action-panel">
+        <!-- 1. Set Priority Level -->
+        <form action="{{ url_for('manager_triage') }}" method="POST" style="margin: 0;">
+            <input type="hidden" name="defect_id" value="{{ defect.defect_id }}">
+            <input type="hidden" name="action" value="update_priority">
+            <label>1. Priority Level</label>
+            <select name="priority" onchange="this.form.submit()">
+                <option value="High" {% if priority_val == 'HIGH' %}selected{% endif %}>High Priority</option>
+                <option value="Medium" {% if priority_val == 'MEDIUM' %}selected{% endif %}>Medium Priority</option>
+                <option value="Low" {% if priority_val == 'LOW' %}selected{% endif %}>Low Priority</option>
+            </select>
+        </form>
+
+        <!-- 2. Select Active Mechanic -->
+        <form action="{{ url_for('manager_triage') }}" method="POST" style="margin: 0;">
+            <input type="hidden" name="defect_id" value="{{ defect.defect_id }}">
+            <input type="hidden" name="action" value="assign_mechanic">
+            <label>2. Assign Active Mechanic</label>
+            <select name="mechanic_id" onchange="this.form.submit()">
+                <option value="">-- Select Mechanic --</option>
+                {% for mech in active_mechanics %}
+                    <option value="{{ mech.user_id }}" {% if defect.repair_job and defect.repair_job.assigned_mechanic_id == mech.user_id %}selected{% endif %}>
+                        {{ mech.full_name }}
+                    </option>
+                {% else %}
+                    <option value="" disabled>No Active Mechanics Available</option>
+                {% endfor %}
+            </select>
+        </form>
+
+        <hr style="border: 0; border-top: 1px solid #1e293b; margin: 2px 0;">
+
+        <!-- 3. Defer Repair Button -->
+        <button type="button" class="btn-defer" onclick="toggleBox('defer-box-{{ defect.defect_id }}')">
+            Defer Repair
+        </button>
+        <div id="defer-box-{{ defect.defect_id }}" class="defer-box">
+            <form action="{{ url_for('manager_triage') }}" method="POST" style="margin: 0;">
+                <input type="hidden" name="defect_id" value="{{ defect.defect_id }}">
+                <input type="hidden" name="action" value="defer">
+                <input type="text" name="deferral_reason" placeholder="Deferral reason (e.g. Parts on order)..." required style="margin-bottom: 6px;">
+                <button type="submit" class="btn-defer" style="padding: 8px !important; font-size: 12px !important;">Confirm Deferral</button>
+            </form>
+        </div>
+
+        <!-- 4. Manager Final Approval Button -->
+        {% if defect.status == 'Pending Approval' or (defect.repair_job and defect.repair_job.mechanic_signature) %}
+            <button type="button" class="btn-approve" onclick="toggleBox('approval-box-{{ defect.defect_id }}')">
+                Perform Final Approval
+            </button>
+            <div id="approval-box-{{ defect.defect_id }}" class="approval-box">
+                <form action="{{ url_for('manager_triage') }}" method="POST" style="margin: 0;">
+                    <input type="hidden" name="defect_id" value="{{ defect.defect_id }}">
+                    <input type="hidden" name="action" value="final_approval">
+                    <input type="text" name="manager_signature" placeholder="Manager Full Name / Signature..." required style="margin-bottom: 6px;">
+                    <button type="submit" class="btn-approve" style="padding: 8px !important; font-size: 12px !important;">
+                        Sign Off & Complete
+                    </button>
+                </form>
+            </div>
+        {% else %}
+            <div style="font-size: 11px; color: #64748b; text-align: center; padding: 4px 0;">
+                Awaiting mechanic repair sign-off before final approval.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% else %}
+<div class="panel" style="padding: 40px; text-align: center; color: #64748b; background-color: #0f1623; border: 1px solid #1e293b; border-radius: 8px;">
+    No open defects requiring manager triage or sign-off.
+</div>
+{% endfor %}
+
+<script>
+    function toggleBox(boxId) {
+        const box = document.getElementById(boxId);
+        box.style.display = box.style.display === 'block' ? 'none' : 'block';
+    }
+</script>
+{% endblock %}

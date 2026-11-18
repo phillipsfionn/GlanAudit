@@ -1,0 +1,252 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Vehicle - GlanAudit{% endblock %}
+
+{% block extra_css %}
+<style>
+    .back-link {
+        display: inline-block;
+        margin-bottom: 20px;
+        color: #94a3b8;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+    }
+    .back-link:hover {
+        color: #20BF55;
+    }
+
+    .form-container {
+        max-width: 680px;
+        margin: 0 auto;
+    }
+
+    .panel {
+        background-color: #0f1623;
+        border: 1px solid #1e293b;
+        border-radius: 8px;
+        padding: 32px;
+        margin-bottom: 32px;
+    }
+
+    .form-title {
+        margin: 0 0 24px 0;
+        font-size: 22px;
+        font-weight: 700;
+        color: #ffffff;
+        border-bottom: 1px solid #1e293b;
+        padding-bottom: 16px;
+    }
+
+    .section-subtitle {
+        margin: 24px 0 14px 0;
+        font-size: 12px;
+        color: #20BF55;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 700;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        margin-bottom: 8px;
+    }
+
+    .form-group input,
+    .form-group select {
+        background-color: #172033;
+        border: 1px solid #26334d;
+        border-radius: 6px;
+        color: #ffffff;
+        padding: 12px 14px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.15s ease-in-out;
+        font-family: inherit;
+        box-sizing: border-box;
+        width: 100%;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        border-color: #20BF55;
+    }
+
+    .form-group select option {
+        background-color: #172033;
+        color: #ffffff;
+    }
+
+    /* Dark calendar picker icon */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+    }
+
+    .btn-submit {
+        background-color: #20BF55 !important;
+        color: #090d16 !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+        padding: 12px 20px !important;
+        border: none !important;
+        border-radius: 6px !important;
+        width: 100%;
+        cursor: pointer;
+        transition: background-color 0.15s ease-in-out !important;
+        margin-top: 8px;
+    }
+    .btn-submit:hover {
+        background-color: #199e45 !important;
+    }
+
+    /* CSV Divider */
+    .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 32px 0;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+    .divider::before, .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px dashed #1e293b;
+    }
+    .divider span {
+        padding: 0 16px;
+        color: #94a3b8;
+    }
+
+    .csv-box {
+        background-color: #172033;
+        border: 1px solid #26334d;
+        border-radius: 6px;
+        padding: 16px;
+        margin-top: 16px;
+        font-size: 13px;
+        color: #94a3b8;
+    }
+    .csv-box code {
+        color: #20BF55;
+        background-color: #0d1424;
+        padding: 3px 6px;
+        border-radius: 4px;
+        font-family: monospace;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <a href="{{ url_for('manager_dashboard') }}" class="back-link">&larr; Back to Fleet Console</a>
+
+    <!-- Individual Vehicle Registration Form -->
+    <div class="panel">
+        <h2 class="form-title">Register Fleet Vehicle</h2>
+
+        <form action="{{ url_for('manager_add_vehicle') }}" method="POST">
+            <div class="form-group">
+                <label>Registration Number</label>
+                <input type="text" name="registration_number" placeholder="e.g. 211-C-2313" required style="text-transform: uppercase;">
+            </div>
+
+            <div class="form-group">
+                <label>Make & Model</label>
+                <input type="text" name="make_model" placeholder="e.g. Volvo FH16 / Schmitz Trailer">
+            </div>
+
+            <div class="form-group">
+                <label>Vehicle Classification</label>
+                <select name="vehicle_type" required>
+                    <option value="Artic Tractor">Artic Tractor</option>
+                    <option value="HGV Rigid">HGV Rigid</option>
+                    <option value="Trailer">Trailer</option>
+                    <option value="Van">Van</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Initial Status</label>
+                <select name="current_status">
+                    <option value="Active">Active</option>
+                    <option value="In Workshop">In Workshop</option>
+                    <option value="Defect Reported">Defect Reported</option>
+                    <option value="Decommissioned">Decommissioned</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>PMI Maintenance Interval (Weeks)</label>
+                <input type="number" name="pmi_interval_weeks" value="13" min="1" max="52" required>
+            </div>
+
+            <div class="section-subtitle">Statutory Compliance Expiries (Optional)</div>
+
+            <div class="form-group">
+                <label>Next CVRT Test Date</label>
+                <input type="date" name="next_cvrt_date">
+            </div>
+
+            <div class="form-group">
+                <label>Next PMI Maintenance Date</label>
+                <input type="date" name="next_pmi_date">
+            </div>
+
+            <div class="form-group">
+                <label>Motor Tax Expiry</label>
+                <input type="date" name="tax_expiry_date">
+            </div>
+
+            <div class="form-group">
+                <label>Fleet Insurance Expiry</label>
+                <input type="date" name="insurance_expiry_date">
+            </div>
+
+            <div class="form-group">
+                <label>Tachograph Calibration Due</label>
+                <input type="date" name="tacho_calibration_date">
+            </div>
+
+            <button type="submit" class="btn-submit">Add Fleet Vehicle</button>
+        </form>
+    </div>
+
+    <!-- Bulk CSV Import Divider & Panel -->
+    <div class="divider">
+        <span>OR BULK IMPORT VIA CSV</span>
+    </div>
+
+    <div class="panel">
+        <h3 style="margin-top: 0; font-size: 16px; color: #ffffff; margin-bottom: 16px;">Bulk Import Fleet CSV</h3>
+
+        <form action="{{ url_for('bulk_import_vehicles') }}" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>Upload CSV File</label>
+                <input type="file" name="csv_file" accept=".csv" required style="padding: 10px;">
+            </div>
+
+            <button type="submit" class="btn-submit" style="background-color: #172033 !important; color: #ffffff !important; border: 1px solid #26334d !important;">
+                Upload & Import CSV
+            </button>
+        </form>
+
+        <div class="csv-box">
+            <strong style="color: #ffffff; display: block; margin-bottom: 6px;">Supported CSV Columns:</strong>
+            <code>registration_number, make_model, vehicle_type, pmi_interval_weeks, current_status, next_cvrt_date, next_pmi_date</code>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}Overview - GlanAudit{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-banner {
+        background-color: #111827;
+        border: 1px solid #1f2937;
+        border-radius: 8px;
+        padding: 36px;
+        margin-bottom: 24px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+    .hero-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #ffffff;
+        margin: 0 0 8px 0;
+    }
+    .hero-subtitle {
+        color: #94a3b8;
+        font-size: 14px;
+        margin: 0 0 28px 0;
+    }
+    .cta-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 16px;
+    }
+    .cta-card {
+        background-color: #1f2937;
+        border: 1px solid #374151;
+        border-radius: 6px;
+        padding: 22px;
+        text-decoration: none;
+        color: #f8fafc;
+        transition: all 0.15s ease-in-out;
+    }
+    .cta-card:hover {
+        border-color: #20BF55;
+        transform: translateY(-2px);
+    }
+    .cta-card h3 {
+        margin: 0 0 8px 0;
+        font-size: 16px;
+        color: #20BF55;
+    }
+    .cta-card p {
+        margin: 0;
+        font-size: 13px;
+        color: #94a3b8;
+        line-height: 1.4;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero-banner">
+    <h1 class="hero-title">GlanAudit Compliance System</h1>
+    <p class="hero-subtitle">Irish RSA Commercial Fleet Management & Safety Tracking</p>
+
+    {% if current_user.is_authenticated %}
+        {% set user_role_str = current_user.role.value if current_user.role.value is defined else current_user.role|string %}
+
+        <div class="cta-grid">
+            {% if user_role_str.upper() == 'ADMIN' %}
+                <a href="{{ url_for('create_company') }}" class="cta-card">
+                    <h3>Provision Client Company</h3>
+                    <p>Register new transport operators, set up company profiles, and assign initial Fleet Managers.</p>
+                </a>
+            {% elif user_role_str.upper() == 'MANAGER' %}
+                <a href="{{ url_for('manager_dashboard') }}" class="cta-card">
+                    <h3>Fleet Console</h3>
+                    <p>Access fleet status summaries, monitor compliance schedules, and review staff rosters.</p>
+                </a>
+                <a href="{{ url_for('manager_add_vehicle') }}" class="cta-card">
+                    <h3>Add Fleet Vehicles</h3>
+                    <p>Register HGVs, tractor units, and trailers via single entry or CSV bulk upload.</p>
+                </a>
+                <a href="{{ url_for('manager_add_staff') }}" class="cta-card">
+                    <h3>Register Staff</h3>
+                    <p>Provision driver credentials and assign mechanic accounts to your company.</p>
+                </a>
+            {% else %}
+                <a href="{{ url_for('walkaround_checklist') }}" class="cta-card">
+                    <h3>Daily Walkaround Checklist</h3>
+                    <p>Begin a statutory pre-trip RSA walkaround inspection for your assigned vehicle.</p>
+                </a>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="cta-grid">
+            <a href="{{ url_for('login') }}" class="cta-card">
+                <h3>Sign In to Portal</h3>
+                <p>Enter your registered email and access PIN to proceed to your compliance dashboard.</p>
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

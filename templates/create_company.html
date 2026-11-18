@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Company - GlanAudit{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        background: #ffffff;
+        padding: 30px 40px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        border-top: 5px solid #2980b9;
+    }
+    .section-title {
+        font-size: 16px;
+        color: #2980b9;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin-top: 20px;
+        margin-bottom: 15px;
+        padding-bottom: 5px;
+        border-bottom: 2px solid #ecf0f1;
+    }
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+    .full-width {
+        grid-column: 1 / -1;
+    }
+    label {
+        margin-bottom: 6px;
+        font-weight: 600;
+        color: #34495e;
+        font-size: 13px;
+        text-transform: uppercase;
+    }
+    input[type="text"], 
+    input[type="email"], 
+    input[type="password"] {
+        padding: 10px 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 5px;
+        font-size: 15px;
+        background-color: #f8fafc;
+    }
+    input:focus {
+        border-color: #2980b9;
+        outline: none;
+        background-color: #ffffff;
+    }
+    button {
+        grid-column: 1 / -1;
+        margin-top: 25px;
+        padding: 14px;
+        background-color: #27ae60;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    button:hover {
+        background-color: #219150;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2>Provision New Client Company</h2>
+    
+    <form action="{{ url_for('create_company') }}" method="POST" class="form-grid">
+        
+        <!-- Company Profile -->
+        <div class="full-width section-title">1. Company Profile</div>
+
+        <div class="form-group full-width">
+            <label>Company Name</label>
+            <input type="text" name="company_name" required >
+        </div>
+
+        <div class="form-group">
+            <label>RSA Licence Number</label>
+            <input type="text" name="rsa_licence_number" required >
+        </div>
+
+        <div class="form-group">
+            <label>Phone Number</label>
+            <input type="text" name="phone_number" required placeholder="e.g. +353 21 400 0000">
+        </div>
+
+        <div class="form-group full-width">
+            <label>Company Email Address</label>
+            <input type="email" name="company_email" required placeholder="info@gmail..com">
+        </div>
+
+        <!-- Fleet Manager Account -->
+        <div class="full-width section-title">2. Initial Fleet Manager Account</div>
+
+        <div class="form-group">
+            <label>Manager Full Name</label>
+            <input type="text" name="manager_name" required placeholder="e.g. John O'Sullivan">
+        </div>
+
+        <div class="form-group">
+            <label>Manager Email (Login Username)</label>
+            <input type="email" name="manager_email" required placeholder="j.osullivan@gmail..com">
+        </div>
+
+        <div class="form-group full-width">
+            <label>Manager Access PIN (Initial PIN)</label>
+            <input type="password" name="manager_pin" required placeholder="••••" maxlength="10">
+        </div>
+
+        <button type="submit">Create Company & Provision Manager</button>
+    </form>
+</div>
+{% endblock %}

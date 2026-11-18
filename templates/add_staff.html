@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Staff Member - GlanAudit{% endblock %}
+
+{% block extra_css %}
+<style>
+    .back-link {
+        display: inline-block;
+        margin-bottom: 20px;
+        color: #94a3b8;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+    }
+    .back-link:hover {
+        color: #20BF55;
+    }
+
+    .form-container {
+        max-width: 640px;
+        margin: 0 auto;
+    }
+
+    .panel {
+        background-color: #0f1623;
+        border: 1px solid #1e293b;
+        border-radius: 8px;
+        padding: 32px;
+        margin-bottom: 32px;
+    }
+
+    .form-title {
+        margin: 0 0 24px 0;
+        font-size: 22px;
+        font-weight: 700;
+        color: #ffffff;
+        border-bottom: 1px solid #1e293b;
+        padding-bottom: 16px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        margin-bottom: 8px;
+    }
+
+    .form-group input,
+    .form-group select {
+        background-color: #172033;
+        border: 1px solid #26334d;
+        border-radius: 6px;
+        color: #ffffff;
+        padding: 12px 14px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.15s ease-in-out;
+        font-family: inherit;
+        box-sizing: border-box;
+        width: 100%;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        border-color: #20BF55;
+    }
+
+    .form-group select option {
+        background-color: #172033;
+        color: #ffffff;
+    }
+
+    /* Dark calendar picker icon */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+    }
+
+    .btn-submit {
+        background-color: #20BF55 !important;
+        color: #090d16 !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+        padding: 12px 20px !important;
+        border: none !important;
+        border-radius: 6px !important;
+        width: 100%;
+        cursor: pointer;
+        transition: background-color 0.15s ease-in-out !important;
+        margin-top: 8px;
+    }
+    .btn-submit:hover {
+        background-color: #199e45 !important;
+    }
+
+    /* CSV Divider */
+    .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 32px 0;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+    .divider::before, .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px dashed #1e293b;
+    }
+    .divider span {
+        padding: 0 16px;
+        color: #94a3b8;
+    }
+
+    .csv-box {
+        background-color: #172033;
+        border: 1px solid #26334d;
+        border-radius: 6px;
+        padding: 16px;
+        margin-top: 16px;
+        font-size: 13px;
+        color: #94a3b8;
+    }
+    .csv-box code {
+        color: #20BF55;
+        background-color: #0d1424;
+        padding: 3px 6px;
+        border-radius: 4px;
+        font-family: monospace;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <a href="{{ url_for('manager_dashboard') }}" class="back-link">&larr; Back to Fleet Console</a>
+
+    <!-- Individual Registration Form -->
+    <div class="panel">
+        <h2 class="form-title">Register Staff Member</h2>
+
+        <form action="{{ url_for('manager_add_staff') }}" method="POST">
+            <div class="form-group">
+                <label>Staff Role</label>
+                <select name="role" required>
+                    <option value="Driver">Driver</option>
+                    <option value="Mechanic">Mechanic</option>
+                    <option value="Manager">Manager</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" name="full_name" placeholder="e.g. Patrick Murphy" required>
+            </div>
+
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" name="email" placeholder="p.murphy@company.ie" required>
+            </div>
+
+            <div class="form-group">
+                <label>Access PIN</label>
+                <input type="password" name="pin_code" placeholder="••••" maxlength="10" required>
+            </div>
+
+            <div class="form-group">
+                <label>Driving Licence Expiry (Optional)</label>
+                <input type="date" name="licence_expiry_date">
+            </div>
+
+            <div class="form-group">
+                <label>CPC Qualification Expiry (Optional)</label>
+                <input type="date" name="cpc_expiry_date">
+            </div>
+
+            <button type="submit" class="btn-submit">Create Staff Account</button>
+        </form>
+    </div>
+
+    <!-- Bulk CSV Import Divider & Panel -->
+    <div class="divider">
+        <span>OR BULK IMPORT VIA CSV</span>
+    </div>
+
+    <div class="panel">
+        <h3 style="margin-top: 0; font-size: 16px; color: #ffffff; margin-bottom: 16px;">Bulk Import Staff Roster</h3>
+
+        <form action="{{ url_for('bulk_import_staff') }}" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>Upload CSV File</label>
+                <input type="file" name="csv_file" accept=".csv" required style="padding: 10px;">
+            </div>
+
+            <button type="submit" class="btn-submit" style="background-color: #172033 !important; color: #ffffff !important; border: 1px solid #26334d !important;">
+                Upload & Import CSV
+            </button>
+        </form>
+
+        <div class="csv-box">
+            <strong style="color: #ffffff; display: block; margin-bottom: 6px;">Required CSV Columns:</strong>
+            <code>full_name, email, role, pin_code, licence_expiry_date, cpc_expiry_date</code>
+        </div>
+    </div>
+</div>
+{% endblock %}

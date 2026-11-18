@@ -1,0 +1,496 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ staff.full_name }} - Staff Profile - GlanAudit{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-container {
+        max-width: 960px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        display: inline-block;
+        margin-bottom: 18px;
+        color: #94a3b8;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: color 0.15s ease-in-out;
+    }
+    .back-link:hover {
+        color: #20BF55;
+    }
+
+    .header-panel {
+        background-color: #0f1623;
+        border: 1px solid #1e293b;
+        border-radius: 8px;
+        padding: 28px 32px;
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .staff-title {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .staff-subtitle {
+        margin: 6px 0 0 0;
+        font-size: 13px;
+        color: #94a3b8;
+    }
+
+    .badge {
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        display: inline-block;
+    }
+    .badge-driver { background-color: #0c4a6e; color: #38bdf8; border: 1px solid #0284c7; }
+    .badge-mechanic { background-color: #451a03; color: #fbbf24; border: 1px solid #d97706; }
+    .badge-manager { background-color: #1e1b4b; color: #a78bfa; border: 1px solid #6d28d9; }
+
+    .status-pill {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+    .status-active {
+        background-color: #0d3320;
+        color: #86efac;
+        border: 1px solid #166534;
+    }
+    .status-inactive {
+        background-color: #450a0a;
+        color: #fca5a5;
+        border: 1px solid #991b1b;
+    }
+
+    .btn-edit {
+        background-color: #20BF55 !important;
+        color: #090d16 !important;
+        font-weight: 700 !important;
+        font-size: 13px !important;
+        padding: 10px 18px !important;
+        border: none !important;
+        border-radius: 6px !important;
+        cursor: pointer;
+        transition: background-color 0.15s ease-in-out !important;
+    }
+    .btn-edit:hover {
+        background-color: #199e45 !important;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+
+    .info-card {
+        background-color: #0f1623;
+        border: 1px solid #1e293b;
+        border-radius: 8px;
+        padding: 20px 24px;
+    }
+
+    .info-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        margin-bottom: 8px;
+    }
+
+    .info-value {
+        font-size: 16px;
+        font-weight: 700;
+        color: #ffffff;
+    }
+
+    .text-valid { color: #86efac; font-weight: 700; }
+    .text-expired { color: #fca5a5; font-weight: 700; }
+    .text-muted { color: #64748b; }
+
+    .panel {
+        background-color: #0f1623;
+        border: 1px solid #1e293b;
+        border-radius: 8px;
+        padding: 24px 28px;
+        margin-bottom: 24px;
+    }
+
+    .panel-title {
+        margin: 0 0 18px 0;
+        font-size: 16px;
+        font-weight: 700;
+        color: #ffffff;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #1e293b;
+    }
+
+    /* Inline Edit Form Styles */
+    #edit-profile-panel {
+        display: none;
+        border: 1px solid #20BF55;
+    }
+
+    .form-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 18px;
+    }
+
+    .form-group label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        margin-bottom: 8px;
+    }
+
+    .form-group input,
+    .form-group select {
+        background-color: #172033;
+        border: 1px solid #26334d;
+        border-radius: 6px;
+        color: #ffffff;
+        padding: 12px 14px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.15s ease-in-out;
+        font-family: inherit;
+        box-sizing: border-box;
+        width: 100%;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        border-color: #20BF55;
+    }
+
+    .form-group select option {
+        background-color: #172033;
+        color: #ffffff;
+    }
+
+    .form-group input[type="date"] {
+        color-scheme: dark;
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background-color: #172033;
+        padding: 14px 16px;
+        border-radius: 6px;
+        border: 1px solid #26334d;
+        margin-bottom: 20px;
+    }
+    .checkbox-group input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #20BF55;
+        cursor: pointer;
+    }
+    .checkbox-group label {
+        margin-bottom: 0 !important;
+        cursor: pointer;
+        color: #ffffff !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        text-transform: none !important;
+    }
+
+    .btn-save {
+        background-color: #20BF55 !important;
+        color: #090d16 !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+        padding: 12px 20px !important;
+        border: none !important;
+        border-radius: 6px !important;
+        width: 100%;
+        cursor: pointer;
+        transition: background-color 0.15s ease-in-out !important;
+    }
+    .btn-save:hover {
+        background-color: #199e45 !important;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 4px;
+    }
+    th {
+        background-color: #172033;
+        color: #94a3b8;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        text-align: left;
+        padding: 12px 14px;
+    }
+    th:first-child { border-top-left-radius: 6px; border-bottom-left-radius: 6px; }
+    th:last-child { border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
+
+    td {
+        padding: 12px 14px;
+        font-size: 13px;
+        color: #e2e8f0;
+        border-bottom: 1px solid #1e293b;
+    }
+    tr:last-child td { border-bottom: none; }
+
+    .reg-link {
+        color: #ffffff;
+        font-weight: 700;
+        text-decoration: none;
+    }
+    .reg-link:hover {
+        color: #20BF55;
+        text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+        .info-grid,
+        .form-grid-2 {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% set role_name = staff.role.value if staff.role.value is defined else staff.role|string %}
+
+<div class="profile-container">
+    <a href="{{ url_for('manager_dashboard') }}" class="back-link">&larr; Back to Fleet Console</a>
+
+    <!-- Header Card -->
+    <div class="header-panel">
+        <div>
+            <h2 class="staff-title">
+                <span>{{ staff.full_name }}</span>
+                {% if role_name.upper() == 'DRIVER' %}
+                    <span class="badge badge-driver">Driver</span>
+                {% elif role_name.upper() == 'MECHANIC' %}
+                    <span class="badge badge-mechanic">Mechanic</span>
+                {% else %}
+                    <span class="badge badge-manager">{{ role_name }}</span>
+                {% endif %}
+            </h2>
+            <p class="staff-subtitle">{{ staff.email }} &bull; Staff ID #{{ staff.user_id }}</p>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 14px;">
+            {% if staff.is_active %}
+                <span class="status-pill status-active">Active Account</span>
+            {% else %}
+                <span class="status-pill status-inactive">Deactivated</span>
+            {% endif %}
+
+            <button type="button" class="btn-edit" onclick="toggleEditPanel()">
+                Edit Profile &amp; PIN
+            </button>
+        </div>
+    </div>
+
+    <!-- Collapsible Inline Edit Profile Panel -->
+    <div class="panel" id="edit-profile-panel">
+        <h3 class="panel-title">Edit Staff Profile &amp; Access Rights</h3>
+
+        <form action="{{ url_for('manager_staff_detail', user_id=staff.user_id) }}" method="POST">
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label>Staff Role</label>
+                    <select name="role" required>
+                        <option value="Driver" {% if role_name.upper() == 'DRIVER' %}selected{% endif %}>Driver</option>
+                        <option value="Mechanic" {% if role_name.upper() == 'MECHANIC' %}selected{% endif %}>Mechanic</option>
+                        <option value="Manager" {% if role_name.upper() == 'MANAGER' %}selected{% endif %}>Manager</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" name="full_name" value="{{ staff.full_name }}" required>
+                </div>
+            </div>
+
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" name="email" value="{{ staff.email }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Reset Access PIN (Leave blank to keep current)</label>
+                    <input type="password" name="pin_code" placeholder="••••" maxlength="10">
+                </div>
+            </div>
+
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label>Driving Licence Expiry Date</label>
+                    <input type="date" name="licence_expiry_date" value="{{ staff.licence_expiry_date.strftime('%Y-%m-%d') if staff.licence_expiry_date else '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label>CPC Qualification Expiry Date</label>
+                    <input type="date" name="cpc_expiry_date" value="{{ staff.cpc_expiry_date.strftime('%Y-%m-%d') if staff.cpc_expiry_date else '' }}">
+                </div>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="is_active" name="is_active" {% if staff.is_active %}checked{% endif %}>
+                <label for="is_active">Account Active <span style="color: #94a3b8; font-weight: 400;">(Uncheck to revoke login and system access)</span></label>
+            </div>
+
+            <button type="submit" class="btn-save">Save Changes</button>
+        </form>
+    </div>
+
+    <!-- Compliance & Qualification Cards -->
+    <div class="info-grid">
+        <div class="info-card">
+            <div class="info-label">Access PIN Status</div>
+            <div class="info-value text-valid">Configured (Encrypted)</div>
+        </div>
+
+        <div class="info-card">
+            <div class="info-label">Driving Licence Expiry</div>
+            <div class="info-value">
+                {% if staff.licence_expiry_date %}
+                    {{ staff.licence_expiry_date.strftime('%d %b %Y') }}
+                {% else %}
+                    <span class="text-muted">Not Recorded</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="info-card">
+            <div class="info-label">Driver CPC Expiry</div>
+            <div class="info-value">
+                {% if staff.cpc_expiry_date %}
+                    {{ staff.cpc_expiry_date.strftime('%d %b %Y') }}
+                {% else %}
+                    <span class="text-muted">Not Recorded</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Role-Specific Activity History -->
+    {% if role_name.upper() == 'MECHANIC' %}
+    <div class="panel">
+        <h3 class="panel-title">Assigned &amp; Completed Repair Jobs</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Job ID</th>
+                    <th>Vehicle</th>
+                    <th>Defect Description</th>
+                    <th>Parts Cost</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in assigned_jobs %}
+                <tr>
+                    <td>#{{ job.job_id }}</td>
+                    <td>
+                        <a href="{{ url_for('manager_vehicle_detail', vehicle_id=job.defect.vehicle.vehicle_id) }}" class="reg-link">
+                            {{ job.defect.vehicle.registration_number }}
+                        </a>
+                    </td>
+                    <td>{{ job.defect.description }}</td>
+                    <td>€{{ '%.2f'|format(job.parts_cost or 0) }}</td>
+                    <td>{{ job.defect.status }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-muted" style="text-align: center; padding: 20px;">
+                        No repair jobs assigned to this mechanic yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="panel">
+        <h3 class="panel-title">Recent Walkaround Inspection Logs</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Log ID</th>
+                    <th>Vehicle</th>
+                    <th>Odometer</th>
+                    <th>Date / Time</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in walkarounds %}
+                <tr>
+                    <td>#{{ log.log_id }}</td>
+                    <td>
+                        <a href="{{ url_for('manager_vehicle_detail', vehicle_id=log.vehicle.vehicle_id) }}" class="reg-link">
+                            {{ log.vehicle.registration_number }}
+                        </a>
+                    </td>
+                    <td>{{ log.current_odometer }} km</td>
+                    <td>{{ log.created_at.strftime('%d %b %Y, %H:%M') if log.created_at else '-' }}</td>
+                    <td>
+                        {% if log.is_roadworthy %}
+                            <span class="text-valid">Passed (Roadworthy)</span>
+                        {% else %}
+                            <span class="text-expired">Defects Flagged</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-muted" style="text-align: center; padding: 20px;">
+                        No walkaround inspections logged by this staff member yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    function toggleEditPanel() {
+        const panel = document.getElementById('edit-profile-panel');
+        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    }
+</script>
+{% endblock %}

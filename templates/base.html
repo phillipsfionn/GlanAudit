@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}GlanAudit - Fleet Compliance{% endblock %}</title>
+    <style>
+        body {
+            background-color: #090d16;
+            color: #e2e8f0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar {
+            background-color: #0f1523;
+            border-bottom: 1px solid #1e293b;
+            padding: 0 32px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-brand a {
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 800;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .brand-dot {
+            color: #20BF55;
+            font-size: 14px;
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-link {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: color 0.15s ease-in-out;
+        }
+        .nav-link:hover {
+            color: #ffffff;
+        }
+
+        /* User Chip Pill */
+        .user-chip {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            color: #e2e8f0;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .user-dot {
+            color: #20BF55;
+            font-size: 10px;
+        }
+
+        .logout-link {
+            color: #fca5a5;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .logout-link:hover {
+            color: #ef4444;
+            text-decoration: underline;
+        }
+
+        .main-container {
+            max-width: 1240px;
+            margin: 28px auto;
+            padding: 0 24px;
+        }
+
+        .flash-messages {
+            margin-bottom: 24px;
+        }
+        .flash {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .flash-success { background-color: #0d3320; color: #86efac; border: 1px solid #166534; }
+        .flash-error { background-color: #3b1219; color: #fca5a5; border: 1px solid #991b1b; }
+        .flash-info { background-color: #1e1b4b; color: #a78bfa; border: 1px solid #6d28d9; }
+    </style>
+
+    <!-- Flatpickr Dark Calendar Theme -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        .flatpickr-calendar {
+            background: #0f1623 !important;
+            border: 1px solid #26334d !important;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.65) !important;
+            border-radius: 8px !important;
+            font-family: inherit !important;
+        }
+        .flatpickr-calendar.arrowTop:before,
+        .flatpickr-calendar.arrowTop:after {
+            border-bottom-color: #26334d !important;
+        }
+        .flatpickr-calendar.arrowBottom:before,
+        .flatpickr-calendar.arrowBottom:after {
+            border-top-color: #26334d !important;
+        }
+        .flatpickr-months {
+            background: #172033 !important;
+            border-top-left-radius: 8px !important;
+            border-top-right-radius: 8px !important;
+            padding: 6px 0 !important;
+            border-bottom: 1px solid #1e293b !important;
+        }
+        .flatpickr-months .flatpickr-month,
+        .flatpickr-current-month .flatpickr-monthDropdown-months,
+        .flatpickr-current-month input.cur-year {
+            color: #ffffff !important;
+            fill: #ffffff !important;
+            font-weight: 700 !important;
+        }
+        .flatpickr-current-month .flatpickr-monthDropdown-months option {
+            background: #172033 !important;
+            color: #ffffff !important;
+        }
+        .flatpickr-months .flatpickr-prev-month,
+        .flatpickr-months .flatpickr-next-month {
+            color: #94a3b8 !important;
+            fill: #94a3b8 !important;
+        }
+        .flatpickr-months .flatpickr-prev-month:hover svg,
+        .flatpickr-months .flatpickr-next-month:hover svg {
+            fill: #20BF55 !important;
+        }
+        .flatpickr-weekdays {
+            background: #172033 !important;
+            border-bottom: 1px solid #1e293b !important;
+        }
+        span.flatpickr-weekday {
+            background: #172033 !important;
+            color: #94a3b8 !important;
+            font-weight: 700 !important;
+            font-size: 11px !important;
+            text-transform: uppercase !important;
+        }
+        .flatpickr-day {
+            color: #e2e8f0 !important;
+            border-radius: 6px !important;
+            font-weight: 500 !important;
+        }
+        .flatpickr-day:hover,
+        .flatpickr-day:focus {
+            background: #172033 !important;
+            border-color: #26334d !important;
+            color: #ffffff !important;
+        }
+        .flatpickr-day.today {
+            border-color: #20BF55 !important;
+            color: #20BF55 !important;
+            font-weight: 700 !important;
+        }
+        .flatpickr-day.today:hover {
+            background: #0d3320 !important;
+            color: #86efac !important;
+        }
+        .flatpickr-day.selected,
+        .flatpickr-day.startRange,
+        .flatpickr-day.endRange,
+        .flatpickr-day.selected:hover {
+            background: #20BF55 !important;
+            border-color: #20BF55 !important;
+            color: #090d16 !important;
+            font-weight: 700 !important;
+        }
+        .flatpickr-day.prevMonthDay,
+        .flatpickr-day.nextMonthDay,
+        .flatpickr-day.flatpickr-disabled {
+            color: #475569 !important;
+        }
+    </style>
+
+    <!-- Tom Select Dark Dropdown Theme -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.default.min.css">
+    <style>
+        .ts-wrapper {
+            width: 100%;
+        }
+        .ts-control,
+        .ts-wrapper.single .ts-control,
+        .ts-wrapper.single.input-active .ts-control {
+            background-color: #172033 !important;
+            background-image: none !important;
+            border: 1px solid #26334d !important;
+            border-radius: 6px !important;
+            color: #ffffff !important;
+            padding: 10px 14px !important;
+            font-size: 13px !important;
+            font-weight: 500 !important;
+            box-shadow: none !important;
+            min-height: 40px !important;
+            cursor: pointer !important;
+        }
+        .ts-wrapper.focus .ts-control {
+            border-color: #20BF55 !important;
+            box-shadow: 0 0 0 1px #20BF55 !important;
+        }
+        .ts-control input {
+            color: #ffffff !important;
+            font-size: 13px !important;
+        }
+        .ts-control .item {
+            color: #ffffff !important;
+        }
+        /* Custom Down Chevron */
+        .ts-wrapper.single .ts-control:after {
+            border-color: #94a3b8 transparent transparent transparent !important;
+            right: 14px !important;
+        }
+        .ts-wrapper.single.dropdown-active .ts-control:after {
+            border-color: transparent transparent #20BF55 transparent !important;
+        }
+        /* Opened Dropdown Menu */
+        .ts-dropdown {
+            background-color: #0f1623 !important;
+            background-image: none !important;
+            border: 1px solid #26334d !important;
+            border-radius: 8px !important;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.65) !important;
+            margin-top: 4px !important;
+            color: #e2e8f0 !important;
+            font-size: 13px !important;
+            overflow: hidden !important;
+            z-index: 9999 !important;
+        }
+        .ts-dropdown .ts-dropdown-content {
+            padding: 4px !important;
+            max-height: 220px !important;
+        }
+        .ts-dropdown .option {
+            padding: 9px 12px !important;
+            border-radius: 5px !important;
+            color: #e2e8f0 !important;
+            font-weight: 500 !important;
+            cursor: pointer !important;
+            transition: background-color 0.12s ease-in-out !important;
+        }
+        .ts-dropdown .option:hover,
+        .ts-dropdown .option.active {
+            background-color: #172033 !important;
+            color: #ffffff !important;
+        }
+        .ts-dropdown .option.selected {
+            background-color: #0d3320 !important;
+            color: #86efac !important;
+            font-weight: 700 !important;
+        }
+        .ts-dropdown .option.selected.active {
+            background-color: #20BF55 !important;
+            color: #090d16 !important;
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-brand">
+        <a href="{{ url_for('index') }}">
+            <span class="brand-dot">●</span> Glan Audit
+        </a>
+    </div>
+
+    <div class="nav-menu">
+        {% if current_user.is_authenticated %}
+            {% set user_role = (current_user.role.value if current_user.role.value is defined else current_user.role|string)|upper %}
+
+            {% if user_role in ['MANAGER', 'ADMIN'] %}
+                <a href="{{ url_for('manager_dashboard') }}" class="nav-link">Fleet Console</a>
+                <a href="{{ url_for('manager_triage') }}" class="nav-link">Defect Triage</a>
+                <a href="{{ url_for('manager_add_staff') }}" class="nav-link">Add Staff</a>
+                <a href="{{ url_for('manager_add_vehicle') }}" class="nav-link">Add Vehicle</a>
+            {% elif user_role == 'MECHANIC' %}
+                <a href="{{ url_for('mechanic_jobs') }}" class="nav-link">Assigned Jobs</a>
+            {% elif user_role == 'DRIVER' %}
+                <a href="{{ url_for('walkaround_checklist') }}" class="nav-link">Walkaround Check</a>
+            {% endif %}
+
+            <div class="user-chip">
+                <span class="user-dot">●</span>
+                {{ current_user.full_name }} ({{ current_user.role.value if current_user.role.value is defined else current_user.role }})
+            </div>
+
+            <a href="{{ url_for('logout') }}" class="logout-link">Log out</a>
+        {% else %}
+            <a href="{{ url_for('login') }}" class="nav-link">Log in</a>
+        {% endif %}
+    </div>
+</nav>
+
+<div class="main-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        flatpickr('input[type="date"]', {
+            dateFormat: 'Y-m-d',
+            altInput: true,
+            altFormat: 'd M Y',
+            allowInput: true,
+            disableMobile: true
+        });
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('select').forEach(function (el) {
+            const enableSearch = el.options.length > 6;
+
+            new TomSelect(el, {
+                create: false,
+                controlInput: enableSearch ? '<input>' : null,
+                allowEmptyOption: true,
+                dropdownParent: 'body'
+            });
+        });
+    });
+</script>
+</body>
+</html>
